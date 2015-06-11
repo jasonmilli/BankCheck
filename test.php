@@ -52,3 +52,28 @@ $issuers = array(
     array('issuer' => 'Visa', 'bounds' => array(array('min' => 4)), 'length' => array(13,16), 'validation' => 'Luhn', 'active' => 'yes'),
     array('issuer' => 'UATP', 'bounds' => array(array('min' => 1)), 'length' => array(15), 'validation' => 'Luhn', 'active' => 'yes')
 );
+$card_number = (string)4444111144441111;
+$issue = null;
+foreach ($issuers as $issuer) {
+    $match = false;
+    foreach ($issuer['bounds'] as $bound) {
+        $length = strlen($bound['min']);
+        $check = substr($card_number, 0, $length);
+        if (isset($bound['max']) && $check >= $bound['min'] && $check <= $bound['max']) {
+            $match = true;
+            break;
+        } elseif ($check == $bound['min']) {
+            $match = true;
+            break;
+        }
+    }
+    if ($match) {
+        $issue = $issuer;
+        break;
+    }
+}
+if (is_null($issue)) {
+    echo "No issuer found";
+    exit();
+}
+print_r($issue);
