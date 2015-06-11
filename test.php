@@ -30,7 +30,7 @@ $issuers = array(
         'length' => array(16,17,18,19),
         'validation' => 'Luhn',
         'active' => 'no'
-    ,
+    ),
     array(
         'issuer' => 'Maestro',
         'bounds' => array(array('min' => 500000, 'max' => 509999), array('min' => 560000, 'max' => 699999)),
