@@ -52,9 +52,10 @@ $issuers = array(
     array('issuer' => 'Visa', 'bounds' => array(array('min' => 4)), 'length' => array(13,16), 'validation' => 'Luhn', 'active' => 'yes'),
     array('issuer' => 'UATP', 'bounds' => array(array('min' => 1)), 'length' => array(15), 'validation' => 'Luhn', 'active' => 'yes')
 );
-$card_number = (string)4444111144441111;
+$card_number = (string) $argv[1];
 $issue = null;
 foreach ($issuers as $issuer) {
+    if (!in_array(strlen($card_number), $issuer['length'])) continue;
     $match = false;
     foreach ($issuer['bounds'] as $bound) {
         $length = strlen($bound['min']);
@@ -75,5 +76,17 @@ foreach ($issuers as $issuer) {
 if (is_null($issue)) {
     echo "No issuer found";
     exit();
+}
+if (isset($issue['validation']) && $issue['validation'] == 'Luhn') {
+    $running = 0;
+    for ($i = 0; $i < strlen($card_number); $i++) {
+        $weight = 2 - $i % 2;
+        $run = $weight * $card_number[$i];
+        $running += ($run > 9 ? $run - 9 : $run);
+    }
+    if ($running % 10 != 0) {
+        echo "Invalid card number";
+        exit();
+    }
 }
 print_r($issue);
