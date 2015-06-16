@@ -77,8 +77,8 @@ function check($bank, $sortcode, $number) {
         if ($exception == 2) {
             if ($number[0] != 0 && $number[6] != 9) $line = setLine($line['algorithm'], array(0,0,1,2,5,3,6,4,8,7,10,9,3,1));
             if ($number[0] != 0 && $number[6] == 9) $line = setLine($line['algorithm'], array(0,0,0,0,0,0,0,0,8,7,10,9,3,1));
-            echo "T {$number[0]} {$number[6]}\n";
-            print_r($line);
+            //echo "T {$number[0]} {$number[6]}\n";
+            //print_r($line);
         }
         if ($exception == 9 && $valid) continue;
         elseif ($exception == 9) $sortcode = '309634';
@@ -106,7 +106,7 @@ function check($bank, $sortcode, $number) {
                 if ($product == 0) $product = 9;
             }
             $total += $product;
-            echo "{$line["sc$i"]} {$sortcode[$i]} $product\n";
+            //echo "{$line["sc$i"]} {$sortcode[$i]} $product\n";
         }
         for ($i = 0; $i < 8; $i++) {
             $product = $line["an$i"] * $number[$i];
@@ -115,14 +115,11 @@ function check($bank, $sortcode, $number) {
                 if ($product == 0) $product = 9;
             }
             $total += $product;
-            echo "{$line["an$i"]} {$number[$i]} $product\n";
+            //echo "{$line["an$i"]} {$number[$i]} $product\n";
         }
         $mod = 10;
         if ($line['algorithm'] == 'MOD11') $mod = 11;
-        if ($exception == 1) $total += 27;
-        echo "$mod $total {$line['algorithm']} $exception\n";
-        $remainder = $total % $mod;
-        if ($remainder != 0) $valid = false;
+        //echo "$mod $total {$line['algorithm']} $exception\n";
      /*   if ($exception == 9 && !$valid) {
             $sortcode = '309634';
             $total = 0;
@@ -144,9 +141,10 @@ function check($bank, $sortcode, $number) {
             }
             if ($total % 11 == 0) $valid = true;
         }*/
-        if ($exception == 1) $total += 27;
-        echo "$mod $total {$line['algorithm']} $exception\n";
+        //echo "\n".($valid ? 'TY' : 'TN')."\n";
+        if ($exception == 1 && $line['algorithm'] == 'DBLAL') $total += 27;
         $remainder = $total % $mod;
+        //echo "$mod $total {$line['algorithm']} $exception $remainder TT\n";
         if ($remainder != 0) $valid = false;
         if ($exception == 4 && $remainder == substr($number, 6)) $valid = true;
         if ($exception == 5) {
@@ -155,8 +153,9 @@ function check($bank, $sortcode, $number) {
                 continue;
             }
             $line['algorithm'] == 'DBLAL' ? $check = 7 : $check = 6;
-            if (($remainder == 0 && $number[$check] == 0) || $mod - $remainder == $number[$check]) continue;
+            if (!(($remainder == 0 && $number[$check] == 0) || $mod - $remainder == $number[$check])) $exception5 = false;
         } else $exception5 = false;
+        if ($exception == 9 && $remainder == 0) $valid = true;
         if ($exception == 14 && !$valid && in_array($number[7], array(0,1,9))) {
             $number = '0'.substr($number,0,7);
             $total = 0;
@@ -164,13 +163,13 @@ function check($bank, $sortcode, $number) {
             if ($total % 11 == 0) $valid = true;
         }
     }
-    $valid = $valid || $exception5 ? 'Yes' : 'No';
+    $valid = $valid || $exception5 ? 'Y' : 'N';
     echo "Bank: $bank\nSortcode: $sortcode\nAccount number: $number\nValid: $valid\n";
 }
 $tests = array(array('180002','00000190','Y'),array('086090','06774744','Y'),array('089999','66374958','Y'),array('089999','66374959','N'),array('107999','88837491','Y'),array('107999','88837493','N'),array('118765','64371388','N'),array('134020','63849203','Y'),array('202959','63748472','Y'),array('203099','66831036','N'),array('203099','58716970','N'),array('309070','02355688','Y'),array('309070','12345677','Y'),array('309070','99345694','Y'),array('772798','99345694','Y'),array('827101','28748352','Y'),array('938600','42368003','Y'),array('938611','07806039','Y'),array('871427','09123496','Y'),array('074456','11104102','Y'),array('074456','12345112','Y'),array('309070','12345668','Y'),array('938063','15763217','N'),array('938063','15764264','N'),array('938063','15764273','N'),array('070116','34012583','Y'),array('200915','41011166','Y'),array('871427','46238510','Y'),array('872427','46238510','Y'),array('938063','55065200','Y'),array('118765','64371389','Y'),array('820000','73688637','Y'),array('827999','73988638','Y'),array('871427','99123496','Y'));
 foreach ($tests as $test) {
-    if ($test[0] != '309070') continue;
-//    print_r($test);
+    //if ($test[0] != '118765') continue;
+    //print_r($test);
     check('Barclays', $test[0], $test[1]);
     echo "Should be {$test[2]}\n";
 }
